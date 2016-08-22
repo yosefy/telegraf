@@ -13,9 +13,18 @@ import (
 	"github.com/influxdata/telegraf/plugins/inputs"
 	jsonparser "github.com/influxdata/telegraf/plugins/parsers/json"
 )
+if version090 == true {
+        const statsPath = "/_nodes/stats?os=true&process=true&fs=true&http=true&jvm=true&network=true&thread_pool=true&transport=true"
+        const statsPathLocal = "/_nodes/_local/stats??os=true&process=true&fs=true&http=true&jvm=true&network=true&thread_pool=true&transport=true"
+    } else {
+        const statsPath = "/_nodes/stats"
+        const statsPathLocal = "/_nodes/_local/stats"
+    }
 
 const statsPath = "/_nodes/stats"
 const statsPathLocal = "/_nodes/_local/stats"
+const statsPath090 = "/_nodes/stats"
+const statsPathLocal090 = "/_nodes/_local/stats"
 const healthPath = "/_cluster/health"
 
 type node struct {
@@ -68,7 +77,10 @@ const sampleConfig = `
 
   ## set cluster_health to true when you want to also obtain cluster level stats
   cluster_health = false
-
+  
+  ## set for old ES orkaround
+  version090 = false
+  
   ## Optional SSL Config
   # ssl_ca = "/etc/telegraf/ca.pem"
   # ssl_cert = "/etc/telegraf/cert.pem"
@@ -80,9 +92,11 @@ const sampleConfig = `
 // Elasticsearch is a plugin to read stats from one or many Elasticsearch
 // servers.
 type Elasticsearch struct {
+        version090	   bool		
 	Local              bool
 	Servers            []string
 	ClusterHealth      bool
+	Version090         bool
 	SSLCA              string `toml:"ssl_ca"`   // Path to CA file
 	SSLCert            string `toml:"ssl_cert"` // Path to host cert file
 	SSLKey             string `toml:"ssl_key"`  // Path to cert key file
